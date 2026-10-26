@@ -49,3 +49,5 @@ $user = $insert_sth->fetch();
   <dt>名前</dt>
   <dd><?= htmlspecialchars($user['name']) ?></dd>
 </dl>
+<hr>
+<a href="./logout.php">ログアウト</a>
