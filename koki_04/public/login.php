@@ -22,7 +22,14 @@ if (!empty($_POST['email']) && !empty($_POST['password'])) {
   // パスワードが正しいかチェック
   $password_hash = mb_substr($user['password'], 0, 64); // 0文字目から64文字分がハッシュ
   $salt = mb_substr($user['password'], 64, 64); // 64文字目から64文字分がソルト
-  $correct_password = hash('sha256', $_POST['password'] . $salt) === $password_hash;
+  // ストレッチング
+  $input_password_hash = $_POST['password'];
+  foreach (range(1, 100000) as $count) {
+    // ソルトを追加してハッシュ化... を10万回繰り返す
+    $input_password_hash = hash('sha256', $input_password_hash . $salt);
+  }
+  $correct_password = $input_password_hash === $password_hash;
+
   if (!$correct_password) {
     // パスワードが間違っていれば、処理を中断しエラー用クエリパラメータ付きのログイン画面URLにリダイレクト
     header("HTTP/1.1 303 See Other");

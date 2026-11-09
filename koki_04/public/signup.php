@@ -20,12 +20,19 @@ if (!empty($_POST['name']) && !empty($_POST['email']) && !empty($_POST['password
   // ソルトを決める (64文字の乱数値)
   $salt = bin2hex(random_bytes(32));
 
+  // ストレッチング
+  $password_hash = $_POST['password'];
+  foreach (range(1, 100000) as $count) {
+    // ソルトを追加してハッシュ化... を10万回繰り返す
+    $password_hash = hash('sha256', $password_hash . $salt);
+  }
+
   // insertする
   $insert_sth = $dbh->prepare("INSERT INTO users (name, email, password) VALUES (:name, :email, :password)");
   $insert_sth->execute([
     ':name' => $_POST['name'],
     ':email' => $_POST['email'],
-    ':password' => hash('sha256', $_POST['password'] . $salt) . $salt,
+    ':password' => $password_hash . $salt,
   ]);
   // 処理が終わったら完了画面にリダイレクト
   header("HTTP/1.1 303 See Other");
